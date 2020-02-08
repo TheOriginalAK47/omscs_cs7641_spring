@@ -62,6 +62,8 @@ test_dataset_path = sys.argv[2]
 
 plot_dir = sys.argv[3]
 
+model_path = sys.argv[4]
+
 problem_name = 'airbnb_rental_price_classification'
 
 train = pd.read_csv(training_dataset_path)
@@ -93,7 +95,5 @@ clf.fit(train_features, train_labels)
 generate_tree_config_diagram(clf, feature_cols)
 
 plot_opt_model_perf(clf, test_features, test_labels, [0, 1], problem_name, plot_dir)
-
-model_path = "models/airbnb_dt_classifier_model.joblib"
 
 store_model(clf, model_path)

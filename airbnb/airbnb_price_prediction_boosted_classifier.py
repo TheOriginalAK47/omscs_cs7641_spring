@@ -11,32 +11,60 @@ from IPython.display import display, Image
 import pydotplus
 from sklearn import tree
 
-from model_utils import plot_hyperparam_search, plot_hyperparam_search_helper
+from scipy import stats
+
+from model_utils import perf_random_search_for_best_hyper_params, plot_opt_model_perf
+from model_utils import plot_complexity_curves_for_hyperparams, plot_learning_curve, plot_learning_curves_helper, store_model
 
 
-def perform_boosted_tree_hyperparameter_sweep(features, labels, problem_name, plot_dir):
-    parameter_search_space = [[{'n_estimators': 25}, {'n_estimators': 50}, {'n_estimators': 75}, {'n_estimators': 100}], \
-                                [{'learning_rate': 0.85}, {'learning_rate': 0.90}, {'learning_rate': 0.95}, {'learning_rate': 1.0}]]
-    clf = AdaBoostClassifier()
-    for param_set in parameter_search_space:
-        plot_hyperparam_search_helper(clf, features, labels, param_set, problem_name, plot_dir)
+# param_dist = {'learning_rate': stats.uniform(0, 1), 'subsample': stats.uniform(0.7, 0.3)}
 
-features_and_labels_dataset_path = sys.argv[1]
+def sweep_hyperparameter_space_and_plot_complexity_curves(clf, features, labels, problem_name, plot_dir):
+    parameter_search_space = [[{'n_estimators': 25}, {'n_estimators': 50}, {'n_estimators': 75}, {'n_estimators': 100}, {'n_estimators': 150}, \
+    							{'n_estimators': 200}, {'n_estimators': 300}], \
+                                [{'learning_rate': 0.80}, {'learning_rate': 0.825}, {'learning_rate': 0.85}, {'learning_rate': 0.875}, \
+                                 {'learning_rate': 0.90}, {'learning_rate': 0.925}, {'learning_rate': 0.95}, {'learning_rate': 0.975}, {'learning_rate': 1.0}]]
+    for hyperparam_range in parameter_search_space:
+        plot_complexity_curves_for_hyperparams(clf, train_features,train_labels, hyperparam_range, \
+                                                problem_name, plot_dir)
 
-plot_dir = sys.argv[2]
+training_dataset_path = sys.argv[1]
 
-airbnb_features_data_df = pd.read_csv(features_and_labels_dataset_path)
+test_dataset_path = sys.argv[2]
 
-sampled_dataset = airbnb_features_data_df
+plot_dir = sys.argv[3]
 
-feature_cols = [x for x in sampled_dataset.columns if x != 'price' and x != 'expensive']
+model_path = sys.argv[4]
 
-train, test = train_test_split(sampled_dataset, test_size=0.25, train_size=0.75)
+problem_name = 'airbnb_rental_price_classification'
+
+train = pd.read_csv(training_dataset_path)
+
+test = pd.read_csv(test_dataset_path)
+
+feature_cols = [x for x in train.columns if x != 'price' and x != 'expensive']
+
 train_features, train_labels = train[[col for col in feature_cols]], train[['expensive']]
 test_features, test_labels = test[[col for col in feature_cols]], test[['expensive']]
 
 clf = AdaBoostClassifier()
 
-#pruned_ccp_alpha = prune_tree_model(train_features, train_labels, validation_features, validation_labels)
+sweep_hyperparameter_space_and_plot_complexity_curves(clf, train_features, train_labels, problem_name, plot_dir)
 
-perform_boosted_tree_hyperparameter_sweep(train_features, train_labels, problem_name='Airbnb Rental Price Classification', plot_dir=plot_dir)
+param_dist = {'n_estimators': [25, 50, 75, 100, 150, 200, 300], 'learning_rate': stats.uniform(0.75, 0.25)}
+
+opt_param_set_from_random_search = perf_random_search_for_best_hyper_params(clf, train_features, train_labels, param_dist, n_iter_search=20)
+
+clf.set_params(**opt_param_set_from_random_search)
+
+scoring_metric = 'f1'
+
+plot_learning_curves_helper(clf, train_features, train_labels, scoring_metric, plot_dir, problem_name)
+
+clf.fit(train_features, train_labels)
+
+# generate_tree_config_diagram(clf, feature_cols)
+
+plot_opt_model_perf(clf, test_features, test_labels, [0, 1], problem_name, plot_dir)
+
+store_model(clf, model_path)

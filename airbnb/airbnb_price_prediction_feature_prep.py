@@ -44,14 +44,11 @@ def create_oversampled_dataset(features, labels):
 	X_res, y_res = sm.fit_resample(features, labels)
 	return X_res, y_res
 
-"""
-def create_oversampled_dataset_other(features, labels):
-	sm = SMOTE(sampling_strategy={0: 100000, 1:100000})
-	X_res, y_res = sm.fit_resample(features, labels)
-	return X_res, y_res
-"""
-
 airbnb_raw_data_path = sys.argv[1]
+
+training_data_output_path = sys.argv[2]
+
+test_data_output_path = sys.argv[3]
 
 airbnb_raw_df = pd.read_csv(airbnb_raw_data_path)
 
@@ -67,6 +64,6 @@ synthesized_feats, synthesized_labels = create_oversampled_dataset(train[feature
 
 airbnb_dataset = pd.concat([synthesized_feats, synthesized_labels], axis=1)
 
-airbnb_dataset.to_csv("airbnb_training_data_using_smote_new.csv", index=False)
+airbnb_dataset.to_csv(training_data_output_path, index=False)
 
-test.to_csv("airbnb_test_dataset.csv", index=False)
+test.to_csv(test_data_output_path, index=False)
