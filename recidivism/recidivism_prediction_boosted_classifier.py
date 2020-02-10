@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 import numpy as np
 
-from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.metrics import confusion_matrix, roc_auc_score, classification_report
 from sklearn.model_selection import learning_curve, ShuffleSplit, train_test_split
 
@@ -16,10 +16,11 @@ from scipy import stats
 from model_utils import perf_random_search_for_best_hyper_params, plot_opt_model_perf
 from model_utils import plot_complexity_curves_for_hyperparams, plot_learning_curve, plot_learning_curves_helper, store_model
 
-
 def sweep_hyperparameter_space_and_plot_complexity_curves(clf, features, labels, problem_name, plot_dir):
-    parameter_search_space = [[{'hidden_layer_sizes': (25,)}, {'hidden_layer_sizes': (50,)}, {'hidden_layer_sizes': (100,)}, {'hidden_layer_sizes': (150,)}, {'hidden_layer_sizes': (200,)}], \
-                                [{'activation': 'identity'}, {'activation': 'logistic'}, {'activation': 'tanh'}, {'activation': 'relu'}]]
+    parameter_search_space = [[{'n_estimators': 25}, {'n_estimators': 50}, {'n_estimators': 75}, {'n_estimators': 100}, {'n_estimators': 150}, \
+    							{'n_estimators': 200}, {'n_estimators': 300}], \
+                                [{'learning_rate': 0.80}, {'learning_rate': 0.825}, {'learning_rate': 0.85}, {'learning_rate': 0.875}, \
+                                 {'learning_rate': 0.90}, {'learning_rate': 0.925}, {'learning_rate': 0.95}, {'learning_rate': 0.975}, {'learning_rate': 1.0}]]
     for hyperparam_range in parameter_search_space:
         plot_complexity_curves_for_hyperparams(clf, train_features,train_labels, hyperparam_range, \
                                                 problem_name, plot_dir)
@@ -45,15 +46,15 @@ feature_cols = [x for x in train.columns if x != label_col_name]
 train_features, train_labels = train[[col for col in feature_cols]], train[[label_col_name]]
 test_features, test_labels = test[[col for col in feature_cols]], test[[label_col_name]]
 
-clf = MLPClassifier()
+clf = AdaBoostClassifier()
 
 sweep_hyperparameter_space_and_plot_complexity_curves(clf, train_features, train_labels, problem_name, plot_dir)
 
-param_dist = {'hidden_layer_sizes': [(50,), (100,), (150,)], 'activation': ['logistic', 'tanh', 'relu']}
+param_dist = {'n_estimators': [25, 50, 75, 100, 150, 200, 300], 'learning_rate': stats.uniform(0.75, 0.25)}
 
 scoring_metric = 'f1'
 
-opt_param_set_from_random_search = perf_random_search_for_best_hyper_params(clf, train_features, train_labels, scoring_metric, param_dist, n_iter_search=10, n_jobs=-1, cv=3)
+opt_param_set_from_random_search = perf_random_search_for_best_hyper_params(clf, train_features, train_labels, scoring_metric, param_dist, n_iter_search=20, n_jobs=4, cv=5)
 
 clf.set_params(**opt_param_set_from_random_search)
 

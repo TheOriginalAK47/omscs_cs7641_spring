@@ -51,7 +51,7 @@ def sweep_hyperparameter_space_and_plot_complexity_curves(clf, features, labels,
                                 [{'min_samples_leaf': 50}, {'min_samples_leaf': 100}, {'min_samples_leaf': 150}, {'min_samples_leaf': 200}, \
                                 {'min_samples_leaf': 250}, {'min_samples_leaf': 325}, {'min_samples_leaf': 400}, {'min_samples_leaf': 500}]]
     for hyperparam_range in parameter_search_space:
-        plot_complexity_curves_for_hyperparams(clf, train_features,train_labels, hyperparam_range, \
+        plot_complexity_curves_for_hyperparams(clf, features, labels, hyperparam_range, \
                                                 problem_name, plot_dir)
 
 
@@ -73,8 +73,8 @@ test = pd.read_csv(test_dataset_path)
 
 feature_cols = [x for x in train.columns if x != label_col_name]
 
-train_features, train_labels = train[[col for col in feature_cols]], train[[label_col_name]]
-test_features, test_labels = test[[col for col in feature_cols]], test[[label_col_name]]
+train_features, train_labels = train[feature_cols], train[[label_col_name]]
+test_features, test_labels = test[feature_cols], test[[label_col_name]]
 
 clf = DecisionTreeClassifier()
 
@@ -85,7 +85,7 @@ param_dist = {'max_depth': [5, 8, 12, 15, 20, 25, 30], 'min_samples_split': [25,
 
 scoring_metric = 'f1'
 
-opt_param_set_from_random_search = perf_random_search_for_best_hyper_params(clf, train_features, train_labels, param_dist, scoring_metric, n_iter_search=20)
+opt_param_set_from_random_search = perf_random_search_for_best_hyper_params(clf, train_features, train_labels, scoring_metric, param_dist, n_iter_search=20, n_jobs=4, cv=5)
 
 clf.set_params(**opt_param_set_from_random_search)
 

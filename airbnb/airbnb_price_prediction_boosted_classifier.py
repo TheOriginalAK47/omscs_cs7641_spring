@@ -16,9 +16,6 @@ from scipy import stats
 from model_utils import perf_random_search_for_best_hyper_params, plot_opt_model_perf
 from model_utils import plot_complexity_curves_for_hyperparams, plot_learning_curve, plot_learning_curves_helper, store_model
 
-
-# param_dist = {'learning_rate': stats.uniform(0, 1), 'subsample': stats.uniform(0.7, 0.3)}
-
 def sweep_hyperparameter_space_and_plot_complexity_curves(clf, features, labels, problem_name, plot_dir):
     parameter_search_space = [[{'n_estimators': 25}, {'n_estimators': 50}, {'n_estimators': 75}, {'n_estimators': 100}, {'n_estimators': 150}, \
     							{'n_estimators': 200}, {'n_estimators': 300}], \
@@ -36,16 +33,18 @@ plot_dir = sys.argv[3]
 
 model_path = sys.argv[4]
 
-problem_name = 'airbnb_rental_price_classification'
+problem_name = sys.argv[5]
+
+label_col_name = sys.argv[6]
 
 train = pd.read_csv(training_dataset_path)
 
 test = pd.read_csv(test_dataset_path)
 
-feature_cols = [x for x in train.columns if x != 'price' and x != 'expensive']
+feature_cols = [x for x in train.columns if x != label_col_name]
 
-train_features, train_labels = train[[col for col in feature_cols]], train[['expensive']]
-test_features, test_labels = test[[col for col in feature_cols]], test[['expensive']]
+train_features, train_labels = train[[col for col in feature_cols]], train[[label_col_name]]
+test_features, test_labels = test[[col for col in feature_cols]], test[[label_col_name]]
 
 clf = AdaBoostClassifier()
 
@@ -53,17 +52,15 @@ sweep_hyperparameter_space_and_plot_complexity_curves(clf, train_features, train
 
 param_dist = {'n_estimators': [25, 50, 75, 100, 150, 200, 300], 'learning_rate': stats.uniform(0.75, 0.25)}
 
-opt_param_set_from_random_search = perf_random_search_for_best_hyper_params(clf, train_features, train_labels, param_dist, n_iter_search=20)
+scoring_metric = 'f1'
+
+opt_param_set_from_random_search = perf_random_search_for_best_hyper_params(clf, train_features, train_labels, param_dist, scoring_metric, n_iter_search=20)
 
 clf.set_params(**opt_param_set_from_random_search)
 
-scoring_metric = 'f1'
-
 plot_learning_curves_helper(clf, train_features, train_labels, scoring_metric, plot_dir, problem_name)
 
-clf.fit(train_features, train_labels)
-
-# generate_tree_config_diagram(clf, feature_cols)
+clf.fit(train_features, train_labels.values.ravel())
 
 plot_opt_model_perf(clf, test_features, test_labels, [0, 1], problem_name, plot_dir)
 

@@ -6,6 +6,10 @@ import sys
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+from sklearn.model_selection import train_test_split
+
+from imblearn.over_sampling import SMOTE
+
 def ethnicity_mapping_func(raw_ethnicity_str):
 	if (raw_ethnicity_str == 'White - Non-Hispanic' or raw_ethnicity_str == 'White - Hispanic'):
 		return 'White'
@@ -19,24 +23,6 @@ def ethnicity_mapping_func(raw_ethnicity_str):
 		return "AI/AN"
 	else:
 		return "Unknown"
-
-def derive_features_and_perform_one_hot_encoding(raw_df):
-	raw_df['neighborhood_manhattan'] = raw_df['neighbourhood_group'].apply(lambda x: 1 if x == 'Manhattan' else 0)
-	raw_df['neighborhood_brooklyn'] = raw_df['neighbourhood_group'].apply(lambda x: 1 if x == 'Brooklyn' else 0)
-	raw_df['neighborhood_queens'] = raw_df['neighbourhood_group'].apply(lambda x: 1 if x == 'Queens' else 0)
-	raw_df['neighborhood_staten_island'] = raw_df['neighbourhood_group'].apply(lambda x: 1 if x == 'Staten Island' else 0)
-	raw_df['neighborhood_bronx'] = raw_df['neighbourhood_group'].apply(lambda x: 1 if x == 'Bronx' else 0)
-	raw_df['room_type_private'] = raw_df['room_type'].apply(lambda x: 1 if x == 'Private room' else 0)
-	raw_df['room_type_entire'] = raw_df['room_type'].apply(lambda x: 1 if x == 'Entire home/apt' else 0)
-	raw_df['room_type_shared'] = raw_df['room_type'].apply(lambda x: 1 if x == 'Shared room' else 0)
-	raw_df['price'] = raw_df['price'].astype(float)
-	raw_df['reviews_per_month'] = raw_df['reviews_per_month'].fillna(0.0)
-	airbnb_top_quartile_price_thresh = raw_df['price'].quantile(0.75)
-	raw_df['expensive'] = raw_df['price'].apply(lambda price: 1 if price > airbnb_top_quartile_price_thresh else 0)
-	airbnb_df = raw_df[['neighborhood_manhattan', 'neighborhood_brooklyn', 'neighborhood_bronx', 'neighborhood_queens', 'neighborhood_staten_island', \
-						'room_type_private', 'room_type_entire', 'room_type_shared', 'expensive', 'number_of_reviews', 'reviews_per_month', \
-								'calculated_host_listings_count', 'price']]
-	return airbnb_df
 
 def recidivism_data_cleanup(df):
 	df['ethnicity_white'] = df['Race - Ethnicity'].apply(lambda x: 1 if x == 'White - Non-Hispanic' \
@@ -79,6 +65,7 @@ def recidivism_data_cleanup(df):
 	df['offense_other'] = df['Convicting Offense Type'].apply(lambda o: 1 if o == 'Other' else 0)
 	df['offender_supervision_high'] = df['Level of Supervision'].apply(lambda s: 1 if s == 'Intensive' or s == 'High Normal' else 0)
 	df['offender_supervision_low'] = df['Level of Supervision'].apply(lambda s: 1 if s != 'Intensive' and s != 'High Normal' else 0)
+	df['recidivism_target'] = df['Part of Target Population'].apply(lambda r: 0 if r == 'No' else 1)
 	df['recidivism_flag'] = df['Recidivism Type'].apply(lambda r: 0 if r == 'No Recidivism' else 1)
 	return df
 
@@ -96,14 +83,39 @@ def recidivism_exploratory_analysis(df):
 	bar.set(xlabel="Offender Sex", ylabel="Gender Count", title="Offender Gender Frequency Plot")
 	plt.savefig("offender_gender_freq_plot.png")
 
+def create_oversampled_dataset(features, labels):
+	sm = SMOTE(sampling_strategy='minority')
+	X_res, y_res = sm.fit_resample(features, labels)
+	return X_res, y_res
+
 recidivism_raw_data_path = sys.argv[1]
+
+training_data_output_path = sys.argv[2]
+
+test_data_output_path = sys.argv[3]
 
 recidivism_raw_df = pd.read_csv(recidivism_raw_data_path)
 
-recidivism_cleaned_df = recidivism_data_cleanup(recidivism_raw_df)
+recidivism_features_df = recidivism_data_cleanup(recidivism_raw_df)
 
-recidivism_exploratory_analysis(recidivism_cleaned_df)
+recidivism_exploratory_analysis(recidivism_features_df)
 
-recidivism_features_df = derive_features_and_perform_one_hot_encoding(recidivism_raw_df)
+#print(recidivism_features_df.columns)
 
-airbnb_features_df.to_csv("airbnb_features_data.csv", index=False)
+feature_cols = ['ethnicity_white', 'ethnicity_black', 'ethnicity_aipi', 'ethnicity_aian', \
+				'ethnicity_unknown', 'offender_male', 'offender_female', 'offender_unknown', \
+				'offense_public_order', 'offense_drug', 'offense_property', \
+				'offense_violent', 'offense_other', 'offender_supervision_high', \
+				'offender_supervision_low', 'recidivism_target']
+
+train, test = train_test_split(recidivism_features_df, test_size=0.25, train_size=0.75)
+
+synthesized_feats, synthesized_labels = create_oversampled_dataset(train[feature_cols], train['recidivism_flag'])
+
+recidivism_dataset = pd.concat([synthesized_feats, synthesized_labels], axis=1).sample(frac=0.5)
+
+recidivism_dataset.to_csv(training_data_output_path, index=False)
+
+feature_cols.append('recidivism_flag')
+
+test[feature_cols].to_csv(test_data_output_path, index=False)
