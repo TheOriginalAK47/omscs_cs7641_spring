@@ -1,0 +1,11 @@
+#!/bin/bash
+export CLASSPATH=ABAGAIL.jar:$CLASSPATH
+
+jython knapsack_problem.py
+python3 plot_knapsack_results.py knapsack_problem_fitness_results.csv knapsack_problem_clock_times.csv
+
+jython travelling_salesman_problem.py
+python3 plot_tsp_results.py travelling_salesman_problem_fitness_results.csv travelling_salesman_problem_clock_times.csv
+
+jython continous_peaks_problem.py
+python3 plot_cont_peaks_results.py continuous_peaks_problem_fitness_results.csv continuous_peaks_problem_clock_times.csv

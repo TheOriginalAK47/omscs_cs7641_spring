@@ -1,19 +1,16 @@
-README for OMSCS_7641 ML Project 1.
+README for OMSCS_7641 ML Project 2.
 
 Github Link: https://github.com/TheOriginalAK47/omscs_cs7641_spring
-Branch: Master
+Branch: assignment2
 
-I've separated the code, data, and plots for each of the two datasets into separate directories: airbnb/ and recidivism/. I've also included the base dataset and the model datasets that result from the feature prep scripts I've written as well for ease of re-creation. Both directories have a plots/ and models/ sub-directory where the experiment results and final trained model files are stored. I've also created a bash wrapper script in each directory that should execute
-the data preparation and model construction process from end to end which are named respectively:
-recidivism/build_models_for_recidivism_prediction_task.sh
-airbnb/build_models_for_airbnb_price_prediction_task.sh
+The script to run all the code for the three different optimization problems of the Knapsack problem, Travelling Salesman Problem, and the Continuous Peaks problem, resides in the run_pipeline.sh script which can simply be invoked by:
 
-These can simply be invoked by:
-`sh build_models_for_recidivism_prediction_task.sh`
-`sh build_models_for_airbnb_price_prediction_task.sh`
+`sh run_pipeline.sh`
 
-Within these scripts I'm passing parameters where the output pre-processed data files are stored for the first script, and then the two input file paths, plots directory path, model files path, label column name, and problem name to the model-specific code which can be observed in the shell script code.
+This calls the optimization technique specific scripts in order which are executed using jython whereas the plotting scripts thereafter are run using python3. Plotting consists of the fitness functions in addition to the runtime performance of each of these respective technqiques.
 
-The Neural-Network and K-Nearest Neighbors code takes significantly longer than other model files but should run to completion successfully in a timely manner, even on a basic desktop setup.
+The plotting scripts accept two files, both CSV's the first corresponding to the fitness results file and the second deals with the technique performance time.
+
+The code is all built on top of the ABAGAIL libary and uses the ABIGAIL.jar to call methods and use classes from that package. Also I use the jython2.7 executable.
 
 If you have any questions, feel free to contact me at akogler3@gatech.edu.
