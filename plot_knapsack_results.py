@@ -16,6 +16,8 @@ plt.savefig('knapsack_fitness_plot.png')
 
 clock_times_input_file = sys.argv[2]
 
+plt.clf()
+
 perf_df = pd.read_csv(clock_times_input_file)
 ax = sns.lineplot(x="iteration", y="clock_time", hue="model_name", data=perf_df)
 plt.xlabel('# of Iterations')
