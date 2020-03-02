@@ -1,7 +1,3 @@
-# traveling salesman algorithm implementation in jython
-# This also prints the index of the points of the shortest route.
-# To make a plot of the route, write the points at these indexes 
-# to a file and plot them in your favorite tool.
 import sys
 import os
 import time
@@ -53,7 +49,7 @@ import csv
 import time
 
 # set N value.  This is the number of points
-N = 10
+N = 20
 random = Random()
 
 points = [[0 for x in xrange(2)] for x in xrange(N)]
@@ -71,7 +67,7 @@ gap = GenericGeneticAlgorithmProblem(ef, odd, mf, cf)
 
 rhc = RandomizedHillClimbing(hcp)
 
-num_iterations = [1000, 2000, 5000, 10000, 25000, 50000, 100000, 200000]
+num_iterations = [250, 500, 1000, 2500, 5000, 10000]
 rhc_fitness_list = []
 sa_fitness_list = []
 ga_fitness_list = []
@@ -123,12 +119,12 @@ for iters in num_iterations:
 	perf_arr.append([iters, 'ga', ga_time])
 	perf_arr.append([iters, 'mimic', mim_time])
 
-with open('travelling_salesman_problem_fitness_results.csv', 'w') as csvfile:
+with open('travelling_salesman_problem_fitness_results_even_less_iters.csv', 'w') as csvfile:
 	writer = csv.writer(csvfile, delimiter=',', quotechar='|')
 	for row in fitness_arr:
 		writer.writerow(row)
 
-with open('travelling_salesman_problem_clock_times.csv', 'w') as csvfile:
+with open('travelling_salesman_problem_clock_times_even_less_iters.csv', 'w') as csvfile:
 	writer = csv.writer(csvfile, delimiter=',', quotechar='|')
 	for row in perf_arr:
 		writer.writerow(row)

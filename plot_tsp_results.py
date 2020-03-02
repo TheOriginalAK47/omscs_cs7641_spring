@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 import sys
 
 input_file_name = sys.argv[1]
+clock_times_input_file = sys.argv[2]
+
+fitness_results_plot_path = sys.argv[3]
+clock_results_plot_path = sys.argv[4]
 
 fitness_df = pd.read_csv(input_file_name)
 ax = sns.lineplot(x="iteration", y="fitness_val", hue="model_name", data=fitness_df)
@@ -12,9 +16,9 @@ plt.xlabel('# of Iterations')
 plt.ylabel("Fitness Value")
 plt.title("Fitness Values for Opt. Techniques on Travelling Salesman Problem")
 
-plt.savefig('tsp_fitness_plot.png')
+plt.savefig(fitness_results_plot_path)
 
-clock_times_input_file = sys.argv[2]
+
 
 plt.clf()
 
@@ -28,4 +32,4 @@ handles, labels = plt.gca().get_legend_handles_labels()
 by_label = dict(zip(labels, handles))
 plt.legend(by_label.values(), by_label.keys())
 
-plt.savefig('tsp_clock_times_plot.png')
+plt.savefig(clock_results_plot_path)
