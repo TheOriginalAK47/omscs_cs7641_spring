@@ -17,3 +17,11 @@ ica_runner.py
 pca_runner.py
 random_proj_runner.py
 
+Invokation of these for example is as follows (with each varying on problem domain where the problem name as a parameter is changed depending on which directory you're in. For simplicity's sake I've included the generated dataset in the Git repo because the file-sizes allow):
+
+python3 pca_runner.py data/raw/recidivism_training_data.csv data/raw/recidivism_test_data.csv plots/ data/ recidivism_clustering
+python3 ica_runner.py data/raw/airbnb_training_data.csv data/raw/airbnb_test_data.csv data/ airbnb_clusterin
+python3 factor_analysis_runner.py data/raw/airbnb_training_data.csv data/raw/airbnb_test_data.csv data/ airbnb_clustering 7
+python3 random_proj_runner.py data/raw/airbnb_training_data.csv data/raw/airbnb_test_data.csv plots/ data/ airbnb_clustering 5
+
+If you have any mis-understandings I would simply open each of these decomposition scripts as they're quite simple in nature. If you have any queries still, feel free to email me at akogler3@gatech.edu.
