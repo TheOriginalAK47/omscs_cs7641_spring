@@ -6,6 +6,8 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
+print('foo')
+
 airbnb_train_data_input_file_path = sys.argv[1]
 
 airbnb_test_data_input_file_path = sys.argv[2]
@@ -14,11 +16,12 @@ plot_dir = sys.argv[3]
 
 problem_name = sys.argv[4]
 
-airbnb_train_df = pd.read_csv(airbnb_train_data_input_file_path)
-
-airbnb_test_df = pd.read_csv(airbnb_test_data_input_file_path)
-
-airbnb_df = pd.concat([airbnb_train_df, airbnb_test_df])
+if (airbnb_test_data_input_file_path != 'foo'):
+	airbnb_train_df = pd.read_csv(airbnb_train_data_input_file_path)
+	airbnb_test_df = pd.read_csv(airbnb_test_data_input_file_path)
+	airbnb_df = pd.concat([airbnb_train_df, airbnb_test_df])
+else:
+	airbnb_df = pd.read_csv(airbnb_train_data_input_file_path)
 
 best_k_val = 2
 best_inertia_val = float("inf")
@@ -51,4 +54,5 @@ plt.ylabel('# of points in cluster')
 plt.title('Count of points assigned to cluster by ID')
 plt.grid()
 
+print(plot_dir + problem_name + "_k_means_clusters_point_counts.png")
 plt.savefig(plot_dir + problem_name + "_k_means_clusters_point_counts.png")
