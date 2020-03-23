@@ -1,5 +1,7 @@
 # Assignment 3
 
+Git Repo: https://github.com/TheOriginalAK47/omscs_cs7641_spring/tree/assignment3
+
 Like before all of the code is written in Python and store output into respective data and plot folders. For the Airbnb dataset, the raw data is contained in airbnb/data/raw with both the training and test sets there. To execute the base clustering algorithms you can run the following bash commands:
 
 python3 k_means_clustering.py data/raw/airbnb_training_data.csv data/raw/airbnb_test_data.csv plots/ airbnb_clustering
