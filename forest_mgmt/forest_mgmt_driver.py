@@ -73,8 +73,8 @@ for wild_fire_prob in wild_fire_probs:
   output = new_stdout.getvalue()
   parsed_param_set_output = parse_progress_output(output, "wild_fire_prob", wild_fire_prob)
   sys.stdout = old_stdout
-  output_row_as_df = pd.DataFrame(parsed_param_set_output, columns=['iteration_num', 'value_function_delta', 'param_name', 'param_val'])
-  wild_fire_vi_df = wild_fire_vi_df.append(output_row_as_df)
+  other_output_row_as_df = pd.DataFrame(parsed_param_set_output, columns=['iteration_num', 'value_function_delta', 'param_name', 'param_val'])
+  wild_fire_vi_df = wild_fire_vi_df.append(other_output_row_as_df)
   q = QLearning(transitions=P, reward=R, discount=0.9)
   q.run()
   deltas_arr = q.mean_discrepancy
@@ -110,8 +110,8 @@ for r1_val in r1_arr:
   sys.stdout = old_stdout
   parsed_param_set_output = parse_progress_output(output, "r1_value", r1_val)
   sys.stdout = old_stdout
-  output_row_as_df = pd.DataFrame(parsed_param_set_output, columns=['iteration_num', 'value_function_delta', 'param_name', 'param_val'])
-  r1_vi_df = r1_vi_df.append(output_row_as_df)
+  other_output_row_as_df = pd.DataFrame(parsed_param_set_output, columns=['iteration_num', 'value_function_delta', 'param_name', 'param_val'])
+  r1_vi_df = r1_vi_df.append(other_output_row_as_df)
   q = QLearning(transitions=P, reward=R, discount=0.9)
   q.run()
   deltas_arr = q.mean_discrepancy
@@ -145,8 +145,8 @@ for r2_val in r2_arr:
   output = new_stdout.getvalue()
   parsed_param_set_output = parse_progress_output(output, "r2_value", r2_val)
   sys.stdout = old_stdout
-  output_row_as_df = pd.DataFrame(parsed_param_set_output, columns=['iteration_num', 'value_function_delta', 'param_name', 'param_val'])
-  r2_vi_df = r2_vi_df.append(output_row_as_df)
+  other_output_row_as_df = pd.DataFrame(parsed_param_set_output, columns=['iteration_num', 'value_function_delta', 'param_name', 'param_val'])
+  r2_vi_df = r2_vi_df.append(other_output_row_as_df)
   q = QLearning(transitions=P, reward=R, discount=0.9)
   q.run()
   deltas_arr = q.mean_discrepancy
