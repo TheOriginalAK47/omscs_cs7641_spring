@@ -81,8 +81,8 @@ num_iterations = 0
 
 deltas_arr = []
 while not policy_stable:
-    deltas_pi = policy_evaluation(V, policy_matrix, deltas_arr, num_iterations)
-    deltas_arr.append(deltas_pi)
+    policy_evaluation(V, policy_matrix, deltas_arr, num_iterations)
+    #deltas_arr.append(deltas_pi)
     policy_stable = policy_improvement(V, policy_matrix)
     num_iterations += 1
 
@@ -93,6 +93,16 @@ deltas_pd = pd.DataFrame(deltas, columns=['iteration_num', 'value_function_delta
 print('Procedure has converged after ' + str(num_iterations) + ' policy iterations')
 print(V.reshape((4,4)))
 print(policy_matrix.reshape((4,4)))
-print(deltas_arr)
+
+deltas_pi = [i for i in deltas_arr if i[0] == 2]
+new_deltas_pi = []
+iter_num = 1
+for delta in deltas_pi:
+	new_deltas_pi.append([iter_num, delta[1], 'policy_iteration'])
+	iter_num += 1
+
+deltas_pi_pd = pd.DataFrame(new_deltas_pi, columns=['iteration_num', 'value_function_delta', 'technique'])
+
+deltas_pd = deltas_pd.append(deltas_pi_pd)
 
 plot_results(deltas_pd, plots_dir)
