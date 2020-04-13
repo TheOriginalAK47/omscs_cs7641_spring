@@ -27,7 +27,7 @@ def eval_state_action(V, cur_state, a, gamma=0.99):
 
 def value_iteration(eps=0.01):
     V = np.zeros(num_states)
-    it = 0
+    num_iterations = 0
     deltas = []
     while True:
         delta = 0
@@ -38,8 +38,8 @@ def value_iteration(eps=0.01):
         if delta < eps:
             break
         else:
-            deltas.append([it, np.round(delta, 4), 'value_iteration'])
-        it += 1
+            deltas.append([num_iterations, np.round(delta, 4), 'value_iteration'])
+        num_iterations += 1
     return V, deltas
 
 def policy_evaluation(V, policy_matrix, deltas, num_iterations, eps=0.01):
